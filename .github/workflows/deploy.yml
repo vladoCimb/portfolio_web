@@ -33,7 +33,7 @@ jobs:
         run: flutter pub get
 
       - name: 🏗 Build Flutter web (release)
-        run: flutter build web --release
+        run: flutter build web --release --base-href /portfolio_web/
 
       - name: 🚫 Disable Jekyll
         run: |
