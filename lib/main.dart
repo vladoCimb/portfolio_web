@@ -479,8 +479,7 @@ class _WorkShowcaseState extends State<_WorkShowcase>
 
   @override
   Widget build(BuildContext context) {
-    final bool isPhone = (defaultTargetPlatform == TargetPlatform.iOS ||
-        defaultTargetPlatform == TargetPlatform.android);
+    final bool isPhone = MediaQuery.of(context).size.shortestSide < 600;
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -528,8 +527,7 @@ class _ExperienceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isPhone = (defaultTargetPlatform == TargetPlatform.iOS ||
-        defaultTargetPlatform == TargetPlatform.android);
+    final bool isPhone = MediaQuery.of(context).size.shortestSide < 600;
 
     return Padding(
       padding: EdgeInsets.all(isPhone ? 0 : 24),
@@ -1019,38 +1017,45 @@ class _NavBarState extends State<NavBar> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isPhone = MediaQuery.of(context).size.shortestSide < 600;
+
     return CompositedTransformTarget(
       link: _layerLink,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () {
-          if (_menuEntry == null) {
-            _showMenu(withBarrier: true);
-          } else {
-            _hideMenu();
-          }
-        },
-        child: MouseRegion(
-          onEnter: (_) {
-            _hoveringMenu = true;
-            _showMenu(withBarrier: false);
-          },
-          onExit: (_) {
-            _hoveringMenu = false;
-            _startCloseTimer();
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(
-              'Social',
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white
-                    : Colors.black,
-              ),
+      child: isPhone
+          ? GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                if (_menuEntry == null) {
+                  _showMenu(withBarrier: true);
+                } else {
+                  _hideMenu();
+                }
+              },
+              child: _buildSocialText())
+          : MouseRegion(
+              onEnter: (_) {
+                _hoveringMenu = true;
+                _showMenu(withBarrier: false);
+              },
+              onExit: (_) {
+                _hoveringMenu = false;
+                _startCloseTimer();
+              },
+              child: _buildSocialText(),
             ),
-          ),
+    );
+  }
+
+  Widget _buildSocialText() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Text(
+        'Social',
+        style: TextStyle(
+          fontSize: 16,
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : Colors.black,
         ),
       ),
     );

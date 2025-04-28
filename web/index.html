@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!-- existing head… -->
   <base href="$FLUTTER_BASE_HREF">
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
@@ -16,44 +15,30 @@
   <title>Vladimír Čimbora</title>
   <link rel="manifest" href="manifest.json">
 
-  <!-- ↓ ADD THIS ↓ -->
+  <!-- Keep the background black until Flutter loads -->
   <meta name="theme-color" content="#000000" />
   <style>
-    /* Full‐screen black splash with spinner */
+    html, body {
+      background-color: #000;
+      margin: 0;
+      height: 100%;
+    }
+    /* Hide overflow until Flutter paints */
     #splash {
       position: fixed;
       top: 0; left: 0;
       width: 100vw; height: 100vh;
       background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       z-index: 9999;
-      margin: 0;
-    }
-    .spinner {
-      width: 48px; height: 48px;
-      border: 4px solid #333;
-      border-top: 4px solid #fff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      from { transform: rotate(0deg); }
-      to   { transform: rotate(360deg); }
     }
   </style>
-  <!-- ↑ ADD THIS ↑ -->
 </head>
 <body>
-  <!-- ADD THIS DIV before bootstrap -->
-  <div id="splash">
-    <div class="spinner"></div>
-  </div>
+  <!-- simple black overlay -->
+  <div id="splash"></div>
 
   <script src="flutter_bootstrap.js" async></script>
   <script>
-    // Once Flutter is fully loaded, drop the splash
     window.addEventListener('flutter-first-frame', () => {
       const s = document.getElementById('splash');
       if (s) s.remove();
