@@ -25,12 +25,19 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter web (release)
-        run: flutter build web --release
+        # if you’re on a subpath (e.g. /portfolio_web/), you can
+        # either hardcode --base-href or patch it to relative
+        run: flutter build web --release --base-href /portfolio_web/
+
+      - name: Patch base href to relative
+        # optional, works on both sub-path and root domains
+        run: sed -i 's|<base href="/">|<base href="./">|' build/web/index.html
 
       - name: Disable Jekyll
         run: touch build/web/.nojekyll
 
-      - name: Upload artifact for Pages
+      - id: deployment
+        name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: build/web
@@ -39,6 +46,14 @@ jobs:
     name: 🚀 Deploy to GitHub Pages
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      # this hooks into the "github-pages" environment UI,
+      # and surfaces the published URL there
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v1
+      - name: Deploy Pages
+        uses: actions/deploy-pages@v4
