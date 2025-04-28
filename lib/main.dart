@@ -535,16 +535,13 @@ class _ExperienceSection extends StatelessWidget {
 
   bool isMobileBrowser() {
     final ua = html.window.navigator.userAgent.toLowerCase();
-    return ua.contains('mobi') // most phones
-        ||
+    return ua.contains('mobi') ||
         ua.contains('android') ||
         ua.contains('iphone');
   }
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
     final isPhone = isMobileBrowser();
 
     return Padding(
@@ -939,52 +936,66 @@ class NavBar extends StatefulWidget {
 }
 
 class _NavBarState extends State<NavBar> {
-  bool _hoveringMenu = false;
-  OverlayEntry? _overlayEntry;
+  OverlayEntry? _barrierEntry;
+  OverlayEntry? _menuEntry;
   final LayerLink _layerLink = LayerLink();
+  bool _hoveringMenu = false;
   Timer? _closeTimer;
 
-  void _showMenu() {
+  void _showMenu({required bool withBarrier}) {
     _closeTimer?.cancel();
-    if (_overlayEntry != null) return;
+    if (_menuEntry != null) return;
 
-    _overlayEntry = OverlayEntry(builder: (context) {
+    // 1) Barrier, only on tap-trigger
+    if (withBarrier) {
+      _barrierEntry = OverlayEntry(builder: (_) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: _hideMenu,
+          child: Container(color: Colors.transparent),
+        );
+      });
+    }
+
+    // 2) The dropdown menu
+    _menuEntry = OverlayEntry(builder: (context) {
       return Positioned(
         width: 180,
         child: CompositedTransformFollower(
           link: _layerLink,
           showWhenUnlinked: false,
-          offset: const Offset(-40, 45), // below the label
+          offset: const Offset(-40, 45),
           child: MouseRegion(
             onEnter: (_) => _keepMenuOpen(),
-            onExit: (_) => _startCloseTimer(),
+            onExit: (_) {
+              _hoveringMenu = false;
+              _startCloseTimer();
+            },
             child: Material(
               color: Colors.transparent,
               child: Container(
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(16),
+                  color: Theme.of(context).brightness == Brightness.dark
+                      ? Colors.grey.shade900
+                      : Colors.white,
+                  border: Border.all(
                     color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.grey.shade900
-                        : Colors.white,
-                    border: Border.all(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.white
-                          : Colors.black,
-                      width: 0.1,
-                    )),
-                child: MouseRegion(
-                  onExit: (_) => _hideMenu(),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _menuItem('assets/images/icons/github.svg', 'GitHub',
-                          'https://github.com/vladoCimb'),
-                      _menuItem('assets/images/icons/linkedIn.svg', 'LinkedIn',
-                          'https://www.linkedin.com/in/vladimir-cimbora'),
-                      _menuItem('assets/images/icons/X_icon.svg', 'X/Twitter',
-                          'https://x.com/cimbora_v'),
-                    ],
+                        ? Colors.white
+                        : Colors.black,
+                    width: 0.1,
                   ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _menuItem('assets/images/icons/github.svg', 'GitHub',
+                        'https://github.com/vladoCimb'),
+                    _menuItem('assets/images/icons/linkedIn.svg', 'LinkedIn',
+                        'https://www.linkedin.com/in/vladimir-cimbora'),
+                    _menuItem('assets/images/icons/X_icon.svg', 'X/Twitter',
+                        'https://x.com/cimbora_v'),
+                  ],
                 ),
               ),
             ),
@@ -993,13 +1004,18 @@ class _NavBarState extends State<NavBar> {
       );
     });
 
-    Overlay.of(context).insert(_overlayEntry!);
+    // 3) Insert entries: barrier first if present, then menu
+    final overlay = Overlay.of(context);
+    if (_barrierEntry != null) overlay.insert(_barrierEntry!);
+    overlay.insert(_menuEntry!);
   }
 
   void _hideMenu() {
     _closeTimer?.cancel();
-    _overlayEntry?.remove();
-    _overlayEntry = null;
+    _menuEntry?.remove();
+    _barrierEntry?.remove();
+    _menuEntry = null;
+    _barrierEntry = null;
   }
 
   void _startCloseTimer() {
@@ -1012,6 +1028,45 @@ class _NavBarState extends State<NavBar> {
   void _keepMenuOpen() {
     _hoveringMenu = true;
     _closeTimer?.cancel();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          if (_menuEntry == null) {
+            _showMenu(withBarrier: true);
+          } else {
+            _hideMenu();
+          }
+        },
+        child: MouseRegion(
+          onEnter: (_) {
+            _hoveringMenu = true;
+            _showMenu(withBarrier: false);
+          },
+          onExit: (_) {
+            _hoveringMenu = false;
+            _startCloseTimer();
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Text(
+              'Social',
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.black,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _menuItem(String icon, String label, String url) {
@@ -1030,39 +1085,5 @@ class _NavBarState extends State<NavBar> {
         launchUrl(Uri.parse(url));
       },
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CompositedTransformTarget(
-      link: _layerLink,
-      child: MouseRegion(
-        onEnter: (_) {
-          _hoveringMenu = true;
-          _showMenu();
-        },
-        onExit: (_) {
-          _hoveringMenu = false;
-          _startCloseTimer();
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          child: Text('Social',
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.white
-                    : Colors.black,
-              )),
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _closeTimer?.cancel();
-    _overlayEntry?.remove();
-    super.dispose();
   }
 }
