@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'dart:html' as html;
+import 'package:flutter/foundation.dart';
 
 void main() {
   runApp(const PortfolioApp());
@@ -479,15 +479,8 @@ class _WorkShowcaseState extends State<_WorkShowcase>
 
   @override
   Widget build(BuildContext context) {
-    bool isMobileBrowser() {
-      final ua = html.window.navigator.userAgent.toLowerCase();
-      return ua.contains('mobi') // most phones
-          ||
-          ua.contains('android') ||
-          ua.contains('iphone');
-    }
-
-    final bool isPhone = isMobileBrowser();
+    final bool isPhone = (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android);
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -533,19 +526,13 @@ class _WorkShowcaseState extends State<_WorkShowcase>
 class _ExperienceSection extends StatelessWidget {
   const _ExperienceSection();
 
-  bool isMobileBrowser() {
-    final ua = html.window.navigator.userAgent.toLowerCase();
-    return ua.contains('mobi') ||
-        ua.contains('android') ||
-        ua.contains('iphone');
-  }
-
   @override
   Widget build(BuildContext context) {
-    final isPhone = isMobileBrowser();
+    final bool isPhone = (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android);
 
     return Padding(
-      padding: EdgeInsets.all(isMobileBrowser() ? 0 : 24),
+      padding: EdgeInsets.all(isPhone ? 0 : 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
