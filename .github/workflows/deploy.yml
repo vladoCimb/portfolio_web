@@ -1,0 +1,43 @@
+name: 🚀 Deploy Flutter Web to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main    # or your default branch
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write     # for pages
+      pages: write
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⬇️ Install Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      - name: ⚙️ Enable web support
+        run: flutter config --enable-web
+
+      - name: 📦 Get dependencies
+        run: flutter pub get
+
+      - name: 🏗 Build Flutter web (release)
+        run: flutter build web --release
+
+      - name: 🚫 Disable Jekyll
+        run: |
+          # ensures GitHub Pages serves raw files, not Jekyll
+          touch build/web/.nojekyll
+
+      - name: 🚀 Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build/web
+          # optional: if you want to set a custom domain automatically:
+          # cname: www.example.com
