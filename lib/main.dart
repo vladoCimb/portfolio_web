@@ -479,7 +479,8 @@ class _WorkShowcaseState extends State<_WorkShowcase>
 
   @override
   Widget build(BuildContext context) {
-    final bool isPhone = MediaQuery.of(context).size.shortestSide < 600;
+    final bool isPhone = (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android);
 
     return Padding(
       padding: const EdgeInsets.all(24),
@@ -527,7 +528,8 @@ class _ExperienceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bool isPhone = MediaQuery.of(context).size.shortestSide < 600;
+    final bool isPhone = (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android);
 
     return Padding(
       padding: EdgeInsets.all(isPhone ? 0 : 24),
@@ -1017,7 +1019,8 @@ class _NavBarState extends State<NavBar> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isPhone = MediaQuery.of(context).size.shortestSide < 600;
+    final bool isPhone = (defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android);
 
     return CompositedTransformTarget(
       link: _layerLink,
