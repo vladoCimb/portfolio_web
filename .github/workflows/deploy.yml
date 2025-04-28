@@ -15,10 +15,12 @@ jobs:
       - name: 📥 Checkout repository
         uses: actions/checkout@v4
 
-      - name: ⬇️ Install Flutter SDK
+      
+
+      - name: Set up Flutter (latest stable)
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'stable'
+          channel: stable
 
       - name: ⚙️ Enable web support
         run: flutter config --enable-web
