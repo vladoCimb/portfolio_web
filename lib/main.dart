@@ -66,7 +66,7 @@ class PortfolioPage extends StatelessWidget {
             physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                SizedBox(height: height, child: const _HeroSection()),
+                SizedBox(height: height, child: _HeroSection()),
                 // Experience section will now scroll as part of this
                 const _ExperienceSection(),
                 _WorkShowcase(
@@ -145,7 +145,10 @@ class PortfolioPage extends StatelessWidget {
 }
 
 class _HeroSection extends StatelessWidget {
-  const _HeroSection();
+  _HeroSection();
+
+  final bool isPhone = (defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.android);
 
   @override
   Widget build(BuildContext context) {
@@ -207,7 +210,8 @@ class _HeroSection extends StatelessWidget {
                         shadowColor: Colors.black26,
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        padding:
+                            EdgeInsets.symmetric(vertical: isPhone ? 2 : 4),
                         child: const Text(
                           'Download CV',
                           style: TextStyle(
@@ -234,7 +238,8 @@ class _HeroSection extends StatelessWidget {
                         ),
                       ),
                       child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 4),
+                        padding:
+                            EdgeInsets.symmetric(vertical: isPhone ? 2 : 4),
                         child: const Text(
                           'Contact Me',
                           style: TextStyle(
@@ -382,8 +387,8 @@ class Meteor {
   final double duration;
 
   Meteor(double angle, Size size)
-      : startX = Random().nextDouble() * size.width - size.width / 3,
-        startY = Random().nextDouble() * size.height / 4,
+      : startX = Random().nextDouble() * size.width - size.width / 5,
+        startY = Random().nextDouble() * size.height / 4 - size.height / 6,
         delay = Random().nextDouble(),
         duration = 0.3 + Random().nextDouble() * 0.7 {
     var distance = size.height;
