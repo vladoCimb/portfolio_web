@@ -13,8 +13,7 @@ jobs:
     name: 🛠 Build & Upload
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -25,13 +24,15 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter web (release)
-        # if you’re on a subpath (e.g. /portfolio_web/), you can
-        # either hardcode --base-href or patch it to relative
-        run: flutter build web --release --base-href /portfolio_web/
+        # no --base-href needed for a root domain
+        run: flutter build web --release
 
-      - name: Patch base href to relative
-        # optional, works on both sub-path and root domains
+      # OPTIONAL: if you ever move to a subfolder later, you can make assets load relative:
+      - name: (Optional) Make base href relative
         run: sed -i 's|<base href="/">|<base href="./">|' build/web/index.html
+
+      - name: Add CNAME for custom domain
+        run: echo 'vcimbora.dev' > build/web/CNAME
 
       - name: Disable Jekyll
         run: touch build/web/.nojekyll
@@ -50,10 +51,8 @@ jobs:
       pages: write
       id-token: write
     environment:
-      # this hooks into the "github-pages" environment UI,
-      # and surfaces the published URL there
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy Pages
+      - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
