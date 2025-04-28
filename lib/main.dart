@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 void main() {
   runApp(const PortfolioApp());
@@ -189,7 +190,8 @@ class _HeroSection extends StatelessWidget {
                   children: [
                     // White square button with subtle shadow
                     ElevatedButton(
-                      onPressed: () => launchUrl(Uri.parse('assets/cv/cv.pdf')),
+                      onPressed: () => launchUrl(Uri.parse(
+                          'https://drive.google.com/file/d/1FImHDfPKdIwQO39o4wc8DDqezDI73Zfk/view?usp=share_link')),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.black87,
@@ -380,8 +382,8 @@ class Meteor {
   final double duration;
 
   Meteor(double angle, Size size)
-      : startX = Random().nextDouble() * size.width - size.width / 6,
-        startY = Random().nextDouble() * size.height / 4 - size.height / 4,
+      : startX = Random().nextDouble() * size.width - size.width / 3,
+        startY = Random().nextDouble() * size.height / 4,
         delay = Random().nextDouble(),
         duration = 0.3 + Random().nextDouble() * 0.7 {
     var distance = size.height;
@@ -477,16 +479,19 @@ class _WorkShowcaseState extends State<_WorkShowcase>
 
   @override
   Widget build(BuildContext context) {
+    final isPhone = context.isPhone;
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 48),
+          Padding(
+            padding: EdgeInsets.only(left: isPhone ? 8 : 48),
             child: Text(
               'Work Showcase',
-              style: TextStyle(fontSize: 68, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: isPhone ? 48 : 68, fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(height: 32),
@@ -521,19 +526,23 @@ class _ExperienceSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final bool isPhone = context.isPhone;
+
     return Padding(
-      padding: EdgeInsets.all(24),
+      padding: EdgeInsets.all(isPhone ? 0 : 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 48),
+            padding: EdgeInsets.only(left: isPhone ? 8 : 48),
             child: Text('Experience',
-                style: TextStyle(fontSize: 68, fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    fontSize: isPhone ? 48 : 68, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(height: 24),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 60),
+            padding: EdgeInsets.symmetric(horizontal: isPhone ? 16 : 60),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -625,12 +634,13 @@ class _ExperienceSection extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 48),
+            padding: EdgeInsets.only(left: isPhone ? 8 : 48),
             child: Text('Projects',
-                style: TextStyle(fontSize: 68, fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    fontSize: isPhone ? 48 : 68, fontWeight: FontWeight.bold)),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 60),
+            padding: EdgeInsets.symmetric(horizontal: isPhone ? 16 : 60),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -671,48 +681,6 @@ class _ExperienceSection extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _SkillsSection extends StatelessWidget {
-  const _SkillsSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return _FullPageContainer(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Skills',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 24),
-          Wrap(spacing: 16, runSpacing: 16, children: [
-            Chip(label: Text('Flutter')),
-            Chip(label: Text('Dart')),
-            Chip(label: Text('React')),
-            Chip(label: Text('Python')),
-            Chip(label: Text('Java')),
-            Chip(label: Text('PostgreSQL')),
-          ])
-        ],
-      ),
-    );
-  }
-}
-
-/// Utility widget to make each page fill the viewport
-class _FullPageContainer extends StatelessWidget {
-  final Widget child;
-  const _FullPageContainer({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: MediaQuery.of(context).size.height,
-      padding: const EdgeInsets.all(24),
-      child: child,
     );
   }
 }
