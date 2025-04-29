@@ -104,6 +104,10 @@ class PortfolioPage extends StatelessWidget {
                 // Experience section will now scroll as part of this
                 const _ExperienceSection(),
 
+                SizedBox(
+                  height: 24,
+                ),
+
                 _SkillsSection(),
 
                 SizedBox(
