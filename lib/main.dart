@@ -103,10 +103,11 @@ class PortfolioPage extends StatelessWidget {
                 ),
                 // Experience section will now scroll as part of this
                 const _ExperienceSection(),
+
                 _SkillsSection(),
 
                 SizedBox(
-                  height: 60,
+                  height: 80,
                 ),
               ],
             ),
@@ -133,26 +134,6 @@ class PortfolioPage extends StatelessWidget {
                       isDark: Theme.of(context).brightness == Brightness.dark,
                       onToggleTheme: onToggleTheme,
                     ),
-                    // IconButton(
-                    //   onPressed: onToggleTheme,
-                    //   icon: AnimatedSwitcher(
-                    //     duration: const Duration(milliseconds: 300),
-                    //     transitionBuilder: (child, animation) {
-                    //       // you can swap this for any animation you like:
-                    //       return RotationTransition(
-                    //           turns: animation, child: child);
-                    //       // or a simple fade:
-                    //       // return FadeTransition(opacity: animation, child: child);
-                    //     },
-                    //     child: Icon(
-                    //       Theme.of(context).brightness == Brightness.dark
-                    //           ? Icons.light_mode
-                    //           : Icons.dark_mode,
-                    //       key: ValueKey(Theme.of(context).brightness),
-                    //       size: 24,
-                    //     ),
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
@@ -299,7 +280,7 @@ class _SkillTileState extends State<SkillTile> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final baseColor = isDark ? Colors.grey[800]! : Colors.grey[200]!;
+    final baseColor = isDark ? Colors.grey[800]! : Colors.grey[100]!;
     final hoverColor = Theme.of(context).colorScheme.primary.withOpacity(0.2);
     final textColor = isDark ? Colors.white : Colors.black87;
 
