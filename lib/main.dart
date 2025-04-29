@@ -67,8 +67,6 @@ class PortfolioPage extends StatelessWidget {
             child: Column(
               children: [
                 SizedBox(height: height, child: _HeroSection()),
-                // Experience section will now scroll as part of this
-                const _ExperienceSection(),
                 _WorkShowcase(
                   topImages: [
                     'assets/images/work_showcase/locals/locals_1.png',
@@ -103,6 +101,10 @@ class PortfolioPage extends StatelessWidget {
                     'assets/images/work_showcase/pluto_tv/pluto_3.png',
                   ],
                 ),
+                // Experience section will now scroll as part of this
+                const _ExperienceSection(),
+                _SkillsSection(),
+
                 SizedBox(
                   height: 60,
                 ),
@@ -127,18 +129,213 @@ class PortfolioPage extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     NavBar(onToggleTheme: onToggleTheme), // <-- here
-                    IconButton(
-                      icon: Icon(Theme.of(context).brightness == Brightness.dark
-                          ? Icons.light_mode
-                          : Icons.dark_mode),
-                      onPressed: onToggleTheme,
+                    ThemeToggleButton(
+                      isDark: Theme.of(context).brightness == Brightness.dark,
+                      onToggleTheme: onToggleTheme,
                     ),
+                    // IconButton(
+                    //   onPressed: onToggleTheme,
+                    //   icon: AnimatedSwitcher(
+                    //     duration: const Duration(milliseconds: 300),
+                    //     transitionBuilder: (child, animation) {
+                    //       // you can swap this for any animation you like:
+                    //       return RotationTransition(
+                    //           turns: animation, child: child);
+                    //       // or a simple fade:
+                    //       // return FadeTransition(opacity: animation, child: child);
+                    //     },
+                    //     child: Icon(
+                    //       Theme.of(context).brightness == Brightness.dark
+                    //           ? Icons.light_mode
+                    //           : Icons.dark_mode,
+                    //       key: ValueKey(Theme.of(context).brightness),
+                    //       size: 24,
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ThemeToggleButton extends StatefulWidget {
+  /// Whether we’re currently in dark mode
+  final bool isDark;
+
+  /// Called _after_ the rotation completes
+  final VoidCallback onToggleTheme;
+
+  const ThemeToggleButton({
+    super.key,
+    required this.isDark,
+    required this.onToggleTheme,
+  });
+
+  @override
+  State<ThemeToggleButton> createState() => _ThemeToggleButtonState();
+}
+
+class _ThemeToggleButtonState extends State<ThemeToggleButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _turns;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+
+    _turns = Tween(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+
+    _ctrl.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        // 1) Flip the app theme
+        widget.onToggleTheme();
+        // 2) Reset animation so it’s ready for next tap
+        _ctrl.reset();
+      }
+    });
+  }
+
+  @override
+  void didUpdateWidget(covariant ThemeToggleButton old) {
+    super.didUpdateWidget(old);
+    // If parent changed the theme by some other means, ensure we're reset
+    if (old.isDark != widget.isDark && !_ctrl.isAnimating) {
+      _ctrl.value = 0.0;
+    }
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Disable taps while animating
+    final enabled = !_ctrl.isAnimating;
+
+    return GestureDetector(
+      onTap: enabled ? () => _ctrl.forward() : null,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedBuilder(
+        animation: _turns,
+        builder: (context, child) {
+          // rotate a full circle = 2π radians * turns
+          return Transform.rotate(
+            angle: _turns.value * 2 * pi,
+            child: child,
+          );
+        },
+        child: Icon(
+          widget.isDark ? Icons.light_mode : Icons.dark_mode,
+          key: ValueKey(
+              widget.isDark), // tells AnimatedBuilder which icon is new
+          size: 24,
+          color: Theme.of(context).iconTheme.color,
+        ),
+      ),
+    );
+  }
+}
+
+/// Replace your existing _SkillsSection with this:
+class _SkillsSection extends StatelessWidget {
+  _SkillsSection();
+  final bool isPhone = (defaultTargetPlatform == TargetPlatform.iOS ||
+      defaultTargetPlatform == TargetPlatform.android);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: isPhone ? 8 : 48),
+          child: Text('Skills',
+              style: TextStyle(
+                  fontSize: isPhone ? 48 : 68, fontWeight: FontWeight.bold)),
+        ),
+        const SizedBox(height: 24),
+        Wrap(
+          alignment: WrapAlignment.start,
+          children: const [
+            SkillTile(label: 'Flutter'),
+            SkillTile(label: 'Python'),
+            SkillTile(label: 'React'),
+            SkillTile(label: '.NET'),
+            SkillTile(label: 'Java'),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class SkillTile extends StatefulWidget {
+  final String label;
+  const SkillTile({super.key, required this.label});
+
+  @override
+  _SkillTileState createState() => _SkillTileState();
+}
+
+class _SkillTileState extends State<SkillTile> {
+  bool _hovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDark ? Colors.grey[800]! : Colors.grey[200]!;
+    final hoverColor = Theme.of(context).colorScheme.primary.withOpacity(0.2);
+    final textColor = isDark ? Colors.white : Colors.black87;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.all(8),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        decoration: BoxDecoration(
+          color: _hovering ? hoverColor : baseColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: _hovering
+              ? [
+                  BoxShadow(
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.4),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  )
+                ]
+              : [],
+          border: Border.all(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            width: 1,
+          ),
+        ),
+        child: Text(
+          widget.label,
+          style: TextStyle(
+            color: textColor,
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
     );
   }
@@ -254,7 +451,58 @@ class _HeroSection extends StatelessWidget {
           ),
         ),
       ),
+      Positioned(
+        bottom: 24,
+        left: 0,
+        right: 0,
+        child: Center(
+          child: ScrollDownArrow(),
+        ),
+      ),
     ]);
+  }
+}
+
+class ScrollDownArrow extends StatefulWidget {
+  const ScrollDownArrow({super.key});
+  @override
+  _ScrollDownArrowState createState() => _ScrollDownArrowState();
+}
+
+class _ScrollDownArrowState extends State<ScrollDownArrow>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 800),
+  )..repeat(reverse: true);
+
+  late final Animation<double> _anim = Tween(begin: 0.0, end: 8.0)
+      .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut));
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _anim,
+      builder: (context, child) {
+        return Transform.translate(
+          offset: Offset(0, _anim.value),
+          child: child,
+        );
+      },
+      child: Icon(
+        Icons.keyboard_arrow_down_rounded,
+        size: 36,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? Colors.white70
+            : Colors.black54,
+      ),
+    );
   }
 }
 
@@ -639,6 +887,9 @@ class _ExperienceSection extends StatelessWidget {
                 ),
               ],
             ),
+          ),
+          SizedBox(
+            height: 16,
           ),
           Padding(
             padding: EdgeInsets.only(left: isPhone ? 8 : 48),
