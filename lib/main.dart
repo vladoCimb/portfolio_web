@@ -1293,14 +1293,23 @@ class _NavBarState extends State<NavBar> {
   Widget _buildSocialText() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Text(
-        'Social',
-        style: TextStyle(
-          fontSize: 16,
-          color: Theme.of(context).brightness == Brightness.dark
-              ? Colors.white
-              : Colors.black,
-        ),
+      child: Row(
+        children: [
+          Text(
+            'Social',
+            style: TextStyle(
+              fontSize: 16,
+              color: Theme.of(context).brightness == Brightness.dark
+                  ? Colors.white
+                  : Colors.black,
+            ),
+          ),
+          const SizedBox(width: 4),
+          Icon(
+            Icons.keyboard_arrow_down_rounded,
+            size: 20,
+          ),
+        ],
       ),
     );
   }
